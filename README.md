@@ -7,9 +7,9 @@
 
 ## Case study
 
-Online farm-produce marketplace (e-commerce platform). Name to be confirmed.
+**Farmily**, an online farm-produce marketplace (e-commerce platform)
 
-_Case study statement to be added._
+Farmily is a simulated online marketplace, created for this portfolio, based in Nigeria and operating across Lagos, Abuja and Kano. It connects smallholder farmers directly with buyers. It helps buyers access fresh agricultural produce without relying on middlemen, while giving farmers access to a wider market and the opportunity to sell at fairer prices. The system has four main types of users: farmers, who list available produce; buyers, such as households, restaurants and small retailers, who browse products, place orders and make payments; delivery riders, who update delivery statuses; and administrators, who verify farmers, manage product categories and handle disputes. The database stores farmer and buyer profiles, addresses, product categories, produce batches, harvest and expiry dates, grades, prices, available quantities, orders, order items, payments, deliveries and reviews. Key operations include listing produce, searching for products, placing orders, processing payments, automatically updating stock, assigning and tracking deliveries, handling cancellations and refunds, and reviewing farmers. Farmily suits this portfolio because buyers may compete for limited stock, product attributes vary widely, and regional operations naturally suggest a distributed system design.
 
 ## Portfolio contents
 
