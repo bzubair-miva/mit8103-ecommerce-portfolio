@@ -52,16 +52,21 @@ The following constraints help maintain data accuracy and prevent invalid transa
 6. Rating: a review rating must be between 1 and 5 (`CHECK (rating BETWEEN 1 AND 5)`).
 7. Status values: status columns only accept fixed values, for example `order_status IN ('pending', 'paid', 'dispatched', 'delivered', 'cancelled')`. The same applies to listing, payment and tracking status.
 8. Uniqueness: customer email, payment transaction reference, product name within a category, and one delivery per farmer per order.
+9. Delivery address ownership: an order can only be shipped to an address that belongs to the customer who placed it, enforced by a composite foreign key from `orders (delivery_address_id, customer_id)` to `addresses (address_id, customer_id)`, which a single-column FK on the address alone could not guarantee.
+10. Reviewed listing ownership: when a review names a listing, that listing must belong to the farmer being reviewed, enforced by a composite foreign key from `reviews (listing_id, farmer_id)` to `produce_listings (listing_id, farmer_id)`; if the listing is later deleted, only `listing_id` is set to NULL so the review of the farmer is kept.
+11. One line per listing per order: `UNIQUE (order_id, listing_id)` on order_items stops the same batch appearing twice in one order; if a buyer adds more of the same batch, the application must update the existing line's quantity instead.
+12. Grade and unit: `grade` only accepts `'A'`, `'B'` or `'C'` and `unit` only accepts `'kg'`, `'g'`, `'litre'`, `'piece'`, `'bunch'` or `'crate'` (CHECK ... IN lists), so prices and quantities are always expressed in a known unit and batches can be compared consistently.
+13. Delivery rider and status: `rider_id` may be NULL while a delivery is pending, but a delivery that is `assigned`, `in_transit` or `delivered` must have a rider, and a `delivered` delivery must also have a `delivered_date` (`CHECK (tracking_status NOT IN ('assigned', 'in_transit', 'delivered') OR rider_id IS NOT NULL)` and `CHECK (tracking_status <> 'delivered' OR delivered_date IS NOT NULL)`).
 
 **Involving more than one table (enforced with triggers or transaction logic):**
 
-9. Listing expiry: expired produce listings cannot be used for new purchases. This needs the listing's expiry date to be checked when an order item is inserted.
-10. Stock availability: an order quantity cannot exceed the available quantity of a batch.
-11. Farmer verification: only verified farmers can publish produce listings.
-12. Payment: payment amounts should correspond to the order total, which is calculated from the order items.
-13. Reviews: only customers who have completed a purchase should be allowed to review the relevant farmer or produce.
+14. Listing expiry: expired produce listings cannot be used for new purchases. This needs the listing's expiry date to be checked when an order item is inserted.
+15. Stock availability: an order quantity cannot exceed the available quantity of a batch.
+16. Farmer verification: only verified farmers can publish produce listings.
+17. Payment: payment amounts should correspond to the order total, which is calculated from the order items.
+18. Reviews: only customers who have completed a purchase should be allowed to review the relevant farmer or produce.
 
-A CHECK constraint can only look at values in the same row, so rules 9 to 13 cannot be written as CHECK constraints. They depend on data in other tables and need triggers or logic inside a transaction.
+A CHECK constraint can only look at values in the same row, so rules 14 to 18 cannot be written as CHECK constraints. They depend on data in other tables and need triggers or logic inside a transaction.
 
 An important additional consideration is concurrent purchasing. If two buyers attempt to purchase the remaining stock of the same batch simultaneously, the database must process stock updates safely using transactions and appropriate locking mechanisms. This prevents overselling, and it is demonstrated in Portfolio 3.
 
