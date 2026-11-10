@@ -1,0 +1,16 @@
+Sort  (cost=128.15..128.15 rows=1 width=39) (actual time=0.779..0.781 rows=4 loops=1)
+  Sort Key: l.expiry_date
+  Sort Method: quicksort  Memory: 25kB
+  ->  Nested Loop  (cost=4.69..128.14 rows=1 width=39) (actual time=0.367..0.727 rows=4 loops=1)
+        Join Filter: (p.product_id = l.product_id)
+        Rows Removed by Join Filter: 42
+        ->  Bitmap Heap Scan on produce_listings l  (cost=4.69..126.46 rows=1 width=31) (actual time=0.357..0.703 rows=4 loops=1)
+              Recheck Cond: (farmer_id = 5)
+              Filter: ((quantity_available > '0'::numeric) AND (expiry_date >= '2026-11-10'::date) AND (expiry_date <= '2026-11-24'::date) AND ((listing_status)::text = 'active'::text))
+              Rows Removed by Filter: 50
+              Heap Blocks: exact=50
+              ->  Bitmap Index Scan on idx_listings_farmer  (cost=0.00..4.69 rows=54 width=0) (actual time=0.046..0.047 rows=54 loops=1)
+                    Index Cond: (farmer_id = 5)
+        ->  Seq Scan on products p  (cost=0.00..1.30 rows=30 width=16) (actual time=0.002..0.003 rows=12 loops=4)
+Planning Time: 1.395 ms
+Execution Time: 0.902 ms

@@ -1,0 +1,33 @@
+Sort  (cost=1919.35..1919.43 rows=30 width=84) (actual time=10.257..10.261 rows=21 loops=1)
+  Sort Key: (round(sum((oi.quantity * oi.unit_price_at_purchase)), 2)) DESC
+  Sort Method: quicksort  Memory: 26kB
+  ->  GroupAggregate  (cost=1916.66..1918.61 rows=30 width=84) (actual time=10.076..10.110 rows=21 loops=1)
+        Group Key: p.product_name
+        ->  Sort  (cost=1916.66..1916.90 rows=95 width=29) (actual time=10.020..10.026 rows=83 loops=1)
+              Sort Key: p.product_name, o.order_id
+              Sort Method: quicksort  Memory: 29kB
+              ->  Nested Loop  (cost=9.06..1913.54 rows=95 width=29) (actual time=1.264..9.921 rows=83 loops=1)
+                    ->  Nested Loop  (cost=8.91..1901.68 rows=95 width=21) (actual time=1.152..9.693 rows=83 loops=1)
+                          ->  Nested Loop  (cost=8.62..1768.64 rows=405 width=21) (actual time=0.190..4.983 rows=366 loops=1)
+                                ->  Bitmap Heap Scan on produce_listings l  (cost=4.71..125.94 rows=54 width=8) (actual time=0.069..0.413 rows=54 loops=1)
+                                      Recheck Cond: (farmer_id = 5)
+                                      Heap Blocks: exact=50
+                                      ->  Bitmap Index Scan on idx_listings_farmer  (cost=0.00..4.69 rows=54 width=0) (actual time=0.043..0.044 rows=54 loops=1)
+                                            Index Cond: (farmer_id = 5)
+                                ->  Bitmap Heap Scan on order_items oi  (cost=3.91..30.34 rows=8 width=21) (actual time=0.034..0.080 rows=7 loops=54)
+                                      Recheck Cond: (listing_id = l.listing_id)
+                                      Heap Blocks: exact=363
+                                      ->  Bitmap Index Scan on idx_order_items_listing  (cost=0.00..3.91 rows=8 width=0) (actual time=0.025..0.025 rows=7 loops=54)
+                                            Index Cond: (listing_id = l.listing_id)
+                          ->  Index Scan using orders_pkey on orders o  (cost=0.29..0.33 rows=1 width=4) (actual time=0.013..0.013 rows=0 loops=366)
+                                Index Cond: (order_id = oi.order_id)
+                                Filter: (((order_status)::text <> 'cancelled'::text) AND (order_date >= ('2026-11-10 00:00:00+03'::timestamp with time zone - '90 days'::interval)))
+                                Rows Removed by Filter: 1
+                    ->  Memoize  (cost=0.15..0.39 rows=1 width=16) (actual time=0.002..0.002 rows=1 loops=83)
+                          Cache Key: l.product_id
+                          Cache Mode: logical
+                          Hits: 62  Misses: 21  Evictions: 0  Overflows: 0  Memory Usage: 3kB
+                          ->  Index Scan using products_pkey on products p  (cost=0.14..0.38 rows=1 width=16) (actual time=0.007..0.007 rows=1 loops=21)
+                                Index Cond: (product_id = l.product_id)
+Planning Time: 3.260 ms
+Execution Time: 10.701 ms

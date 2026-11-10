@@ -1,0 +1,30 @@
+Sort  (cost=2680.62..2683.55 rows=1170 width=49) (actual time=18.155..18.216 rows=1140 loops=1)
+  Sort Key: d.dispatched_date
+  Sort Method: quicksort  Memory: 137kB
+  ->  Hash Join  (cost=2425.48..2621.00 rows=1170 width=49) (actual time=16.325..17.929 rows=1140 loops=1)
+        Hash Cond: (a.region_id = rg.region_id)
+        ->  Hash Join  (cost=2424.41..2606.67 rows=1170 width=44) (actual time=16.292..17.699 rows=1140 loops=1)
+              Hash Cond: (d.rider_id = rd.rider_id)
+              ->  Hash Join  (cost=2419.04..2598.14 rows=1170 width=24) (actual time=16.214..17.470 rows=1140 loops=1)
+                    Hash Cond: (a.address_id = o.delivery_address_id)
+                    ->  Seq Scan on addresses a  (cost=0.00..132.60 rows=6960 width=8) (actual time=0.005..0.640 rows=6960 loops=1)
+                    ->  Hash  (cost=2404.41..2404.41 rows=1170 width=24) (actual time=16.189..16.192 rows=1140 loops=1)
+                          Buckets: 2048  Batches: 1  Memory Usage: 79kB
+                          ->  Hash Join  (cost=1212.21..2404.41 rows=1170 width=24) (actual time=7.272..15.986 rows=1140 loops=1)
+                                Hash Cond: (o.order_id = d.order_id)
+                                ->  Seq Scan on orders o  (cost=0.00..868.00 rows=50000 width=8) (actual time=0.010..4.659 rows=50000 loops=1)
+                                ->  Hash  (cost=1197.59..1197.59 rows=1170 width=20) (actual time=7.145..7.146 rows=1140 loops=1)
+                                      Buckets: 2048  Batches: 1  Memory Usage: 74kB
+                                      ->  Bitmap Heap Scan on deliveries d  (cost=24.28..1197.59 rows=1170 width=20) (actual time=0.321..6.629 rows=1140 loops=1)
+                                            Recheck Cond: ((dispatched_date >= ('2026-11-10 00:00:00+03'::timestamp with time zone - '30 days'::interval)) AND (dispatched_date < ('2026-11-10 00:00:00+03'::timestamp with time zone - '3 days'::interval)) AND ((tracking_status)::text = 'in_transit'::text))
+                                            Heap Blocks: exact=703
+                                            ->  Bitmap Index Scan on idx_deliveries_in_transit  (cost=0.00..23.99 rows=1170 width=0) (actual time=0.212..0.212 rows=1140 loops=1)
+                                                  Index Cond: ((dispatched_date >= ('2026-11-10 00:00:00+03'::timestamp with time zone - '30 days'::interval)) AND (dispatched_date < ('2026-11-10 00:00:00+03'::timestamp with time zone - '3 days'::interval)))
+              ->  Hash  (cost=3.50..3.50 rows=150 width=28) (actual time=0.062..0.062 rows=150 loops=1)
+                    Buckets: 1024  Batches: 1  Memory Usage: 18kB
+                    ->  Seq Scan on riders rd  (cost=0.00..3.50 rows=150 width=28) (actual time=0.004..0.022 rows=150 loops=1)
+        ->  Hash  (cost=1.03..1.03 rows=3 width=9) (actual time=0.014..0.014 rows=3 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 9kB
+              ->  Seq Scan on regions rg  (cost=0.00..1.03 rows=3 width=9) (actual time=0.007..0.008 rows=3 loops=1)
+Planning Time: 2.622 ms
+Execution Time: 18.324 ms

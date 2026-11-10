@@ -1,0 +1,15 @@
+Sort  (cost=248.66..249.74 rows=433 width=38) (actual time=2.559..2.699 rows=2106 loops=1)
+  Sort Key: l.price_per_unit
+  Sort Method: quicksort  Memory: 233kB
+  ->  Hash Join  (cost=25.97..229.70 rows=433 width=38) (actual time=0.471..1.728 rows=2106 loops=1)
+        Hash Cond: (l.farmer_id = f.farmer_id)
+        ->  Bitmap Heap Scan on produce_listings l  (cost=8.72..211.30 rows=433 width=23) (actual time=0.277..0.990 rows=2106 loops=1)
+              Recheck Cond: ((product_id = 1) AND (expiry_date > '2026-11-10'::date) AND ((listing_status)::text = 'active'::text))
+              Heap Blocks: exact=195
+              ->  Bitmap Index Scan on idx_listings_active  (cost=0.00..8.61 rows=433 width=0) (actual time=0.241..0.241 rows=2106 loops=1)
+                    Index Cond: ((product_id = 1) AND (expiry_date > '2026-11-10'::date))
+        ->  Hash  (cost=11.00..11.00 rows=500 width=23) (actual time=0.164..0.164 rows=500 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 36kB
+              ->  Seq Scan on farmers f  (cost=0.00..11.00 rows=500 width=23) (actual time=0.011..0.073 rows=500 loops=1)
+Planning Time: 1.695 ms
+Execution Time: 2.896 ms
