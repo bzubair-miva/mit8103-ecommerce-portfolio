@@ -1,0 +1,28 @@
+Sort  (cost=5298.91..5301.80 rows=1159 width=49) (actual time=27.383..27.427 rows=1140 loops=1)
+  Sort Key: d.dispatched_date
+  Sort Method: quicksort  Memory: 137kB
+  ->  Hash Join  (cost=4028.53..5239.92 rows=1159 width=49) (actual time=19.498..27.069 rows=1140 loops=1)
+        Hash Cond: (a.region_id = rg.region_id)
+        ->  Hash Join  (cost=4027.46..5225.72 rows=1159 width=44) (actual time=19.476..26.831 rows=1140 loops=1)
+              Hash Cond: (o.delivery_address_id = a.address_id)
+              ->  Hash Join  (cost=3807.86..5003.08 rows=1159 width=44) (actual time=17.198..24.324 rows=1140 loops=1)
+                    Hash Cond: (d.rider_id = rd.rider_id)
+                    ->  Hash Join  (cost=3802.48..4994.57 rows=1159 width=24) (actual time=17.135..24.080 rows=1140 loops=1)
+                          Hash Cond: (o.order_id = d.order_id)
+                          ->  Seq Scan on orders o  (cost=0.00..868.00 rows=50000 width=8) (actual time=0.007..3.562 rows=50000 loops=1)
+                          ->  Hash  (cost=3787.99..3787.99 rows=1159 width=20) (actual time=17.067..17.068 rows=1140 loops=1)
+                                Buckets: 2048  Batches: 1  Memory Usage: 74kB
+                                ->  Seq Scan on deliveries d  (cost=0.00..3787.99 rows=1159 width=20) (actual time=0.021..16.730 rows=1140 loops=1)
+                                      Filter: (((tracking_status)::text = 'in_transit'::text) AND (dispatched_date >= ('2026-11-10 00:00:00+03'::timestamp with time zone - '30 days'::interval)) AND (dispatched_date < ('2026-11-10 00:00:00+03'::timestamp with time zone - '3 days'::interval)))
+                                      Rows Removed by Filter: 118282
+                    ->  Hash  (cost=3.50..3.50 rows=150 width=28) (actual time=0.045..0.046 rows=150 loops=1)
+                          Buckets: 1024  Batches: 1  Memory Usage: 18kB
+                          ->  Seq Scan on riders rd  (cost=0.00..3.50 rows=150 width=28) (actual time=0.008..0.022 rows=150 loops=1)
+              ->  Hash  (cost=132.60..132.60 rows=6960 width=8) (actual time=2.271..2.272 rows=6960 loops=1)
+                    Buckets: 8192  Batches: 1  Memory Usage: 336kB
+                    ->  Seq Scan on addresses a  (cost=0.00..132.60 rows=6960 width=8) (actual time=0.004..1.274 rows=6960 loops=1)
+        ->  Hash  (cost=1.03..1.03 rows=3 width=9) (actual time=0.016..0.016 rows=3 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 9kB
+              ->  Seq Scan on regions rg  (cost=0.00..1.03 rows=3 width=9) (actual time=0.010..0.011 rows=3 loops=1)
+Planning Time: 1.080 ms
+Execution Time: 27.544 ms

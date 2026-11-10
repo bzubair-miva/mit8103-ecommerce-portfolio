@@ -1,0 +1,28 @@
+Sort  (cost=3585.34..3585.42 rows=30 width=84) (actual time=32.231..32.237 rows=21 loops=1)
+  Sort Key: (round(sum((oi.quantity * oi.unit_price_at_purchase)), 2)) DESC
+  Sort Method: quicksort  Memory: 26kB
+  ->  GroupAggregate  (cost=3582.67..3584.61 rows=30 width=84) (actual time=32.156..32.192 rows=21 loops=1)
+        Group Key: p.product_name
+        ->  Sort  (cost=3582.67..3582.91 rows=94 width=29) (actual time=32.100..32.107 rows=83 loops=1)
+              Sort Key: p.product_name, o.order_id
+              Sort Method: quicksort  Memory: 29kB
+              ->  Hash Join  (cost=447.64..3579.59 rows=94 width=29) (actual time=3.397..31.921 rows=83 loops=1)
+                    Hash Cond: (l.product_id = p.product_id)
+                    ->  Nested Loop  (cost=445.97..3577.63 rows=94 width=21) (actual time=3.362..31.848 rows=83 loops=1)
+                          ->  Hash Join  (cost=445.68..3444.59 rows=405 width=21) (actual time=3.314..29.023 rows=366 loops=1)
+                                Hash Cond: (oi.listing_id = l.listing_id)
+                                ->  Seq Scan on order_items oi  (cost=0.00..2604.85 rows=150085 width=21) (actual time=0.010..13.806 rows=150085 loops=1)
+                                ->  Hash  (cost=445.00..445.00 rows=54 width=8) (actual time=3.258..3.258 rows=54 loops=1)
+                                      Buckets: 1024  Batches: 1  Memory Usage: 11kB
+                                      ->  Seq Scan on produce_listings l  (cost=0.00..445.00 rows=54 width=8) (actual time=0.072..3.230 rows=54 loops=1)
+                                            Filter: (farmer_id = 5)
+                                            Rows Removed by Filter: 19946
+                          ->  Index Scan using orders_pkey on orders o  (cost=0.29..0.33 rows=1 width=4) (actual time=0.007..0.007 rows=0 loops=366)
+                                Index Cond: (order_id = oi.order_id)
+                                Filter: (((order_status)::text <> 'cancelled'::text) AND (order_date >= ('2026-11-10 00:00:00+03'::timestamp with time zone - '90 days'::interval)))
+                                Rows Removed by Filter: 1
+                    ->  Hash  (cost=1.30..1.30 rows=30 width=16) (actual time=0.024..0.024 rows=30 loops=1)
+                          Buckets: 1024  Batches: 1  Memory Usage: 10kB
+                          ->  Seq Scan on products p  (cost=0.00..1.30 rows=30 width=16) (actual time=0.008..0.012 rows=30 loops=1)
+Planning Time: 1.497 ms
+Execution Time: 32.492 ms

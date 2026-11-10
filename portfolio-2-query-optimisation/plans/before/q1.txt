@@ -1,0 +1,13 @@
+Sort  (cost=582.36..583.44 rows=433 width=38) (actual time=4.138..4.241 rows=2106 loops=1)
+  Sort Key: l.price_per_unit
+  Sort Method: quicksort  Memory: 233kB
+  ->  Hash Join  (cost=17.25..563.40 rows=433 width=38) (actual time=0.189..3.471 rows=2106 loops=1)
+        Hash Cond: (l.farmer_id = f.farmer_id)
+        ->  Seq Scan on produce_listings l  (cost=0.00..545.00 rows=433 width=23) (actual time=0.027..2.951 rows=2106 loops=1)
+              Filter: ((expiry_date > '2026-11-10'::date) AND (product_id = 1) AND ((listing_status)::text = 'active'::text))
+              Rows Removed by Filter: 17894
+        ->  Hash  (cost=11.00..11.00 rows=500 width=23) (actual time=0.136..0.137 rows=500 loops=1)
+              Buckets: 1024  Batches: 1  Memory Usage: 36kB
+              ->  Seq Scan on farmers f  (cost=0.00..11.00 rows=500 width=23) (actual time=0.005..0.085 rows=500 loops=1)
+Planning Time: 0.506 ms
+Execution Time: 4.402 ms

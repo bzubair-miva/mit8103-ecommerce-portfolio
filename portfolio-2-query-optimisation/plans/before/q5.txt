@@ -1,0 +1,23 @@
+Limit  (cost=853.70..853.72 rows=10 width=68) (actual time=14.835..14.839 rows=10 loops=1)
+  ->  Sort  (cost=853.70..854.83 rows=453 width=68) (actual time=14.834..14.837 rows=10 loops=1)
+        Sort Key: (round(avg(rv.rating), 2)) DESC, (count(*)) DESC
+        Sort Method: top-N heapsort  Memory: 26kB
+        ->  HashAggregate  (cost=822.39..843.91 rows=453 width=68) (actual time=14.580..14.722 rows=453 loops=1)
+              Group Key: f.farmer_id, r.region_name
+              Filter: (count(*) >= 5)
+              Batches: 1  Memory Usage: 193kB
+              ->  Hash Join  (cost=17.73..634.01 rows=18838 width=30) (actual time=0.271..10.396 rows=18886 loops=1)
+                    Hash Cond: (f.region_id = r.region_id)
+                    ->  Hash Join  (cost=16.66..513.64 rows=18838 width=29) (actual time=0.248..7.579 rows=18886 loops=1)
+                          Hash Cond: (rv.farmer_id = f.farmer_id)
+                          ->  Seq Scan on reviews rv  (cost=0.00..441.93 rows=20793 width=6) (actual time=0.003..2.295 rows=20793 loops=1)
+                          ->  Hash  (cost=11.00..11.00 rows=453 width=27) (actual time=0.240..0.241 rows=453 loops=1)
+                                Buckets: 1024  Batches: 1  Memory Usage: 35kB
+                                ->  Seq Scan on farmers f  (cost=0.00..11.00 rows=453 width=27) (actual time=0.004..0.148 rows=453 loops=1)
+                                      Filter: is_verified
+                                      Rows Removed by Filter: 47
+                    ->  Hash  (cost=1.03..1.03 rows=3 width=9) (actual time=0.010..0.010 rows=3 loops=1)
+                          Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                          ->  Seq Scan on regions r  (cost=0.00..1.03 rows=3 width=9) (actual time=0.006..0.007 rows=3 loops=1)
+Planning Time: 1.317 ms
+Execution Time: 15.002 ms
