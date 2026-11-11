@@ -38,4 +38,4 @@ _To be added._
 
 ## AI use declaration
 
-_To be added._
+- `portfolio-2-query-optimisation/sample-data.sql`: the synthetic data script was generated with AI assistance (Claude, Anthropic). I checked it by running it against the schema and confirming the row counts of every table (`portfolio-2-query-optimisation/row-counts.png`).
