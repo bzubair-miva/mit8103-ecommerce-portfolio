@@ -39,3 +39,10 @@ _To be added._
 ## AI use declaration
 
 - `portfolio-2-query-optimisation/sample-data.sql`: the synthetic data script was generated with AI assistance (Claude, Anthropic). I checked it by running it against the schema and confirming the row counts of every table (`portfolio-2-query-optimisation/row-counts.png`).
+- `portfolio-5-distributed-cloud/replica-set-commands.sh`: the replica set demo script was drafted with AI assistance (Claude, Anthropic). I ran every step myself and checked each result against the screenshots (`p5-1` to `p5-6`).
+
+General help from Claude:
+
+- planning and guidance
+- reviewing each deliverable
+- the repo README scaffolding
